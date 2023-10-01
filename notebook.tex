@@ -1,0 +1,183 @@
+\documentclass[8pt]{extarticle}
+ 
+%% \usepackage[fleqn]{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsfonts,amsthm,bm}
+\usepackage{breqn}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{tikz}
+\usepackage[ruled,vlined,linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{subcaption}
+%% \usepackage{datetime}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{parskip} %turns off paragraph indent
+\pagestyle{fancy}
+
+\usepackage{xcolor}
+\usepackage{mdframed}
+
+\usepackage[small]{titlesec}
+
+\usepackage{hanging}
+
+\usetikzlibrary{arrows}
+
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand*{\argminl}{\argmin\limits}
+
+\newcommand{\mathleft}{\@fleqntrue\@mathmargin0pt}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}} 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\ppartial}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\p}{\partial}
+\newcommand{\te}[1]{\text{#1 }}
+\newcommand{\norm}[1]{\|#1\|}
+
+\setcounter{MaxMatrixCols}{20}
+
+% remove excess vertical space for align equations
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+% \newtheorem{mdtheorem}{Theorem}
+% \newenvironment{theorem}
+% {\begin{mdframed}[
+%   backgroundcolor=green!10,
+%   topline=false,
+%   rightline=false,
+%   bottomline=false,
+%   leftline=false
+%   ]\begin{mdtheorem}}
+%     {\end{mdtheorem}\end{mdframed}}
+
+\begin {document}
+
+\lhead{Notes - Functional Programming, Yuan Liu}
+
+% \begin{align}
+%   \nabla f_{k+1}^T p_k & \geq c_2 \nabla f_k^T p_k\\
+%   \frac{\partial \phi(\alpha_k)}{\partial \alpha_k} & \geq \frac{\partial \phi(0)}{\partial \alpha_k}\\
+%   &c_1,\alpha_k \in (0,1)\\
+%   &0<c_1<c_2<1
+% \end{align}
+  
+\begin{multicols*}{2}
+
+  Gathered notes from:
+  \begin{itemize}
+  \item Haskell Programming from First Principles \cite{hpffp}
+  \end{itemize}
+
+  \section{Monoid}
+  todo
+
+  \vfill\null
+  \columnbreak
+
+  \section{Functor}
+  todo
+
+  \vfill\null
+  \columnbreak
+
+  \section{Applicative}
+  todo
+
+  \vfill\null
+  \columnbreak
+
+  \section{Monad}
+  todo
+
+  \vfill\null
+  \columnbreak
+    
+  \section{Arrow operator as Functor and Applicative}
+
+  \subsection{Functor}
+
+  \verb% ((->) r) = (r ->)% as a functor\\
+  \verb% (r ->) *% expects a type as argument\\
+  instances of \verb% (->) r *% as a type class\\
+  examples of other functors: \verb%[] *%, \verb%Maybe *%\\
+  functor as a type constructor
+  
+  fmap:\\
+  \verb%<$>:: (a -> b) -> F a -> F b%\\
+  let \verb%F = (->) r%\\
+  \verb%<$>:: (a -> b) -> ((->) r) a -> ((->) r) b%\\
+  \verb%<$>:: (a -> b) -> (r -> a) -> (r -> b)%\\
+  \verb%<$>:: (a -> b) -> (r -> a) -> r -> b%
+
+  composition operator:\\
+  \verb% (.) :: (b -> c) -> (a -> b) -> a -> c%
+
+  therefore,\\
+  \verb%<$> = (.)% where \verb%F = (->) r% for functor
+
+  \subsubsection{example}
+  \verb%(+) <$> (*2)%\\
+  \verb%(+) . (*2)%\\
+  \verb%\x -> (+) ((*2) x) %\\
+  \verb%\x -> (+) (x*2) %\\
+  \verb%\x -> x*2 :: a -> a%\\
+  \verb%(\x -> (+) (x*2)) :: a -> (a -> a)%\\
+  \verb%(\x -> (+) (x*2)) :: a -> a -> a%\\
+  \verb%(\x -> ((x*2)+) :: a -> a -> a%\\
+  \verb%(\x -> (\y -> (x*2) + y) :: a -> a -> a%
+  
+  \subsection{Applicative}
+  apply:\\
+  \verb%<*>:: F (a -> b) -> F a -> F b%\\
+  let \verb%F = (->) r = r ->%, then\\
+  \verb%<*>:: ((->) r) (a->b) -> ((->) r) a -> ((->) r) b%\\
+  \verb%<*>:: (r -> a -> b) -> (r -> a) -> (r -> b)%\\
+
+  \verb%pure :: a -> F a%\\
+  \verb%pure x = ((->) r) x = r -> x :: F a%
+
+  \subsubsection{example}
+  \verb%(+) <$> (*2) <*> (+10)%\\
+  \verb%(+) . (*2) <*> (+10)%\\
+  \verb%(\x -> (+) (x*2)) <*> (\x -> x + 10)%\\
+  \verb%\x -> (+) (x*2) (x+10)%
+
+  types:\\
+  \verb%\x -> :: (->) r%\\
+  \verb%(+) (x*2) :: a -> b% where \verb%x% is fixed\\
+  \verb%\x -> (+) (x*2) :: ((->) r) a -> b%\\
+  
+  \verb%\x -> x + 10 :: r -> a  = ((->) r) a%\\
+  
+  \verb%(+) (x*2) (x+10) :: b% where \verb%x% is fixed\\
+  \verb%\x -> (+) (x*2) (x+10) :: ((->) r) b%\\
+  
+  \verb%<*> :: (((->) r) a -> b) -> (((->) r) a) -> (((->) r) b)%
+
+  thus types are as expected for applicative
+  
+  \vfill\null  
+  \pagebreak
+    
+  \bibliographystyle{plain}
+  \bibliography{notebook}
+    
+  \end{multicols*}
+
+\end {document}
