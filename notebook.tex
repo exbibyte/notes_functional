@@ -108,8 +108,10 @@
   \vfill\null
   \columnbreak
     
-  \section{Arrow operator as Functor and Applicative}
+  \section{Arrow operator as Functor, Applicative, Monad}
 
+  let \verb%F = (->) r = r ->%
+  
   \subsection{Functor}
 
   \verb% ((->) r) = (r ->)% as a functor\\
@@ -120,16 +122,13 @@
   
   fmap:\\
   \verb%<$>:: (a -> b) -> F a -> F b%\\
-  let \verb%F = (->) r%\\
   \verb%<$>:: (a -> b) -> ((->) r) a -> ((->) r) b%\\
   \verb%<$>:: (a -> b) -> (r -> a) -> (r -> b)%\\
-  \verb%<$>:: (a -> b) -> (r -> a) -> r -> b%
-
+  \verb%<$>:: (a -> b) -> (r -> a) -> r -> b%\\
   composition operator:\\
-  \verb% (.) :: (b -> c) -> (a -> b) -> a -> c%
-
+  \verb% (.) :: (b -> c) -> (a -> b) -> a -> c%\\
   therefore,\\
-  \verb%<$> = (.)% where \verb%F = (->) r% for functor
+  \verb%<$> = (.)% where \verb%F = (->) r%
 
   \subsubsection{example}
   \verb%(+) <$> (*2)%\\
@@ -145,13 +144,17 @@
   \subsection{Applicative}
   apply:\\
   \verb%<*>:: F (a -> b) -> F a -> F b%\\
-  let \verb%F = (->) r = r ->%, then\\
-  \verb%<*>:: ((->) r) (a->b) -> ((->) r) a -> ((->) r) b%\\
+  \verb%<*>:: ((->) r) (a -> b) -> ((->) r) a -> ((->) r) b%\\
   \verb%<*>:: (r -> a -> b) -> (r -> a) -> (r -> b)%\\
-
+  \verb%h <*> h = \r -> g r (h r)%\\
+  where \verb%g :: r -> a -> b%\\
+  where \verb%h :: r -> a%
+  
   \verb%pure :: a -> F a%\\
-  \verb%pure x = ((->) r) x = r -> x :: F a%
-
+  \verb%pure :: a -> (->) r a%\\
+  \verb%pure :: a -> r -> a%\\
+  \verb%pure = const%
+  
   \subsubsection{example}
   \verb%(+) <$> (*2) <*> (+10)%\\
   \verb%(+) . (*2) <*> (+10)%\\
@@ -171,7 +174,23 @@
   \verb%<*> :: (((->) r) a -> b) -> (((->) r) a) -> (((->) r) b)%
 
   thus types are as expected for applicative
-  
+
+  \subsection{Monad}
+  \verb%return :: a -> F a%\\
+  \verb%return :: a -> (->) r a = a -> r -> a%\\
+  \verb%const :: a -> r -> a%\\
+  \verb%return = const%
+
+  bind:\\
+  \verb%>>= :: F a -> (a -> F b) -> F b%\\  
+  \verb%>>= :: (->) r a -> (a -> (->) r b) -> (->) r b%\\
+  \verb%>>= :: (r -> a) -> (a -> r -> b) -> r -> b%\\
+  \verb% g >>= h = \r -> h (g r) r %\\
+  where \verb% g :: (r -> a)%\\
+  where \verb% h :: (a -> r -> b)%\\
+  \verb% g >>= h = \r -> (\x y z -> x z y) h (g r) r%\\
+  \verb% g >>= h = \r -> (flip  h) r (g r)%\\
+  \verb% g >>= h = (flip  h) <*> g%\\
   \vfill\null  
   \pagebreak
     
